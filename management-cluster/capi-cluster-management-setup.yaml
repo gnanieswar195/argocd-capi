@@ -18,6 +18,12 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - |
+            # Check if the setup has already been completed
+            if [ -f /etc/rancher/rke2/setup-complete ]; then
+              echo "Setup already completed, skipping..."
+              exit 0
+            fi
+
             # Install necessary packages
             apk add --no-cache jq curl
 
@@ -42,15 +48,22 @@ spec:
             # Make the binary executable
             chmod +x /usr/local/bin/clusterctl
 
-            # Verify the installation
-            /usr/local/bin/clusterctl version
+            # Replace 127.0.0.1 with the actual control plane IP in the KUBECONFIG file
+            CONTROL_PLANE_IP=10.230.16.37 # Or manually set the control plane IP if known
+            sed -i "s/127.0.0.1/${CONTROL_PLANE_IP}/g" /etc/rancher/rke2/rke2.yaml
 
             # Set environment variables
             export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
             export CLUSTER_TOPOLOGY=true
 
+            # Verify the installation
+            /usr/local/bin/clusterctl version
+
             # Initialize the management cluster
             /usr/local/bin/clusterctl init --infrastructure openstack
+
+            # Mark the setup as complete
+            touch /etc/rancher/rke2/setup-complete
 
             # Exit the container to prevent it from running indefinitely
             exit 0
