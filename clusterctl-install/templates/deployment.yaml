@@ -30,19 +30,19 @@ spec:
             clusterctl version
 
             # Check if the required components are already installed
-            if ! kubectl get ns capi-system &> /dev/null || \
-               ! kubectl get ns capo-system &> /dev/null || \
-               ! kubectl get ns cert-manager &> /dev/null || \
-               ! kubectl get deployment -n capi-system capi-controller-manager &> /dev/null || \
-               ! kubectl get deployment -n capo-system capo-controller-manager &> /dev/null || \
-               ! kubectl get deployment -n cert-manager cert-manager &> /dev/null; then
+            if kubectl get ns capi-system &> /dev/null && \
+               kubectl get ns capo-system &> /dev/null && \
+               kubectl get ns cert-manager &> /dev/null && \
+               kubectl get deployment -n capi-system capi-controller-manager &> /dev/null && \
+               kubectl get deployment -n capo-system capo-controller-manager &> /dev/null && \
+               kubectl get deployment -n cert-manager cert-manager &> /dev/null; then
+              echo "Management cluster components already installed, skipping initialization."
+            else
               echo "Setting up the management cluster..."
               export KUBECONFIG=/kubeconfig/kubeconfig && \
               export CLUSTER_TOPOLOGY=true && \
               clusterctl init --infrastructure {{ .Values.clusterctl.infrastructureProvider }}
               echo "Management cluster initialized successfully."
-            else
-              echo "Management cluster components already installed, skipping initialization."
             fi
 
             sleep infinity
