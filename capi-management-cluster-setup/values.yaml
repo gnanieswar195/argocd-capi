@@ -3,7 +3,7 @@ serverSetup:
   ssh:
     user: "ubuntu"
     host: "10.230.23.37"
-    keyFile: ""
+    keyFile: "/home/ubuntu/gnani-140.pem"
 
 kubeconfig:
-  path: ""
+  path: "/etc/rancher/rke2/rke2.yaml"
