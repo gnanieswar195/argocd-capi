@@ -24,8 +24,6 @@ spec:
           readOnly: true
         - name: runner-scripts
           mountPath: /runner
-        - name: ssh-config
-          mountPath: /runner
         - name: kubeconfig
           mountPath: /root/.kube
           subPath: kubeconfig          
@@ -37,9 +35,6 @@ spec:
       - name: runner-scripts
         configMap:
           name: runner-scripts
-      - name: ssh-config
-        configMap:
-          name: ssh-config
       - name: kubeconfig
         configMap:
           name: kubeconfig          
