@@ -12,9 +12,9 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |
-            apt-get update && apt-get install -y curl sudo && \
+            apt-get update && apt-get install -y curl nginx sudo && \
             curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/{{ .Values.clusterctl.version }}/clusterctl-linux-amd64 -o clusterctl && \
             sudo install -o root -g root -m 0755 clusterctl /usr/local/bin/clusterctl && \
-            clusterctl version
+            clusterctl version 
       restartPolicy: Never
   backoffLimit: 1
