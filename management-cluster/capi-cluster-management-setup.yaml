@@ -41,7 +41,7 @@ spec:
 
             touch /etc/rancher/rke2/setup-complete
             exit 0
-      restartPolicy: Never   # Ensure the Job does not restart automatically
+      restartPolicy: Never
       volumes:
       - name: kubeconfig
         hostPath:
