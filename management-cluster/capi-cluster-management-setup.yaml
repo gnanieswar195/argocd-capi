@@ -1,9 +1,16 @@
-apiVersion: batch/v1
-kind: Job
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: capi-management-cluster-setup
 spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: capi-management-cluster-setup
   template:
+    metadata:
+      labels:
+        app: capi-management-cluster-setup
     spec:
       containers:
       - name: capi-management-cluster-setup
@@ -41,7 +48,9 @@ spec:
 
             touch /etc/rancher/rke2/setup-complete
             exit 0
-      restartPolicy: Never
+        volumeMounts:
+        - name: kubeconfig
+          mountPath: /etc/rancher/rke2
       volumes:
       - name: kubeconfig
         hostPath:
