@@ -17,6 +17,8 @@ spec:
           - |
             apk add --no-cache openssh-client curl
             mkdir -p /root/.ssh
+            cp /home/ubuntu/gnani-140.pem /root/.ssh/id_rsa/
+            chmod 600 /root/.ssh/id_rsa
             ssh -o StrictHostKeyChecking=no {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/install-clusterctl.sh
             ssh -o StrictHostKeyChecking=no {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/init-cluster.sh
         volumeMounts:
