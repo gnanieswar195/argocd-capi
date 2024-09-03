@@ -7,15 +7,30 @@ spec:
     spec:
       containers:
       - name: capi-management-cluster-setup
-        image: curlimages/curl:latest
+        image: alpine:3.18
         command: ["/bin/sh", "-c"]
         args:
           - |
+            # Install necessary packages
+            apk add --no-cache jq curl
+
             # Fetch the latest version tag
             latest_version=$(curl -s https://api.github.com/repos/kubernetes-sigs/cluster-api/releases/latest | jq -r '.tag_name')
 
+            # Verify the version tag was fetched correctly
+            if [ -z "$latest_version" ]; then
+              echo "Failed to fetch the latest version of clusterctl"
+              exit 1
+            fi
+
             # Download the latest clusterctl binary
             curl -L "https://github.com/kubernetes-sigs/cluster-api/releases/download/${latest_version}/clusterctl-linux-amd64" -o /usr/local/bin/clusterctl
+
+            # Ensure the binary is downloaded
+            if [ ! -f "/usr/local/bin/clusterctl" ]; then
+              echo "Failed to download clusterctl"
+              exit 1
+            fi
 
             # Make the binary executable
             chmod +x /usr/local/bin/clusterctl
@@ -32,13 +47,9 @@ spec:
         volumeMounts:
         - name: kubeconfig
           mountPath: /etc/rancher/rke2
-        - name: clusterctl
-          mountPath: /usr/local/bin
-      restartPolicy: OnFailure
+        restartPolicy: OnFailure
       volumes:
       - name: kubeconfig
         hostPath:
           path: /etc/rancher/rke2
           type: Directory
-      - name: clusterctl
-        emptyDir: {}
