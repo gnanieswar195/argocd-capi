@@ -1,0 +1,4 @@
+apiVersion: v2
+name: capi-management-cluster-setup
+description: A Helm chart for deploying the capi-management-cluster-setup
+version: 0.1.0
