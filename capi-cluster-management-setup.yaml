@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: capi-management-cluster-setup
+spec:
+  template:
+    spec:
+      containers:
+      - name: capi-management-cluster-setup
+        image: curlimages/curl:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            # Fetch the latest version tag
+            latest_version=$(curl -s https://api.github.com/repos/kubernetes-sigs/cluster-api/releases/latest | jq -r '.tag_name')
+
+            # Download the latest clusterctl binary
+            curl -L "https://github.com/kubernetes-sigs/cluster-api/releases/download/${latest_version}/clusterctl-linux-amd64" -o /usr/local/bin/clusterctl
+
+            # Make the binary executable
+            chmod +x /usr/local/bin/clusterctl
+
+            # Verify the installation
+            /usr/local/bin/clusterctl version
+
+            # Set environment variables
+            export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+            export CLUSTER_TOPOLOGY=true
+
+            # Initialize the management cluster
+            /usr/local/bin/clusterctl init --infrastructure openstack
+        volumeMounts:
+        - name: kubeconfig
+          mountPath: /etc/rancher/rke2
+        - name: clusterctl
+          mountPath: /usr/local/bin
+      restartPolicy: OnFailure
+      volumes:
+      - name: kubeconfig
+        hostPath:
+          path: /etc/rancher/rke2
+          type: Directory
+      - name: clusterctl
+        emptyDir: {}
