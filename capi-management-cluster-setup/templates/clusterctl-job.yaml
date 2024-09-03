@@ -10,6 +10,9 @@ spec:
       - name: clusterctl-setup
         image: alpine:latest
         command: ["/bin/sh", "-c"]
+        env:
+        - name: KUBECONFIG
+          value: /root/.kube/kubeconfig
         args:
           - |
             apk add --no-cache openssh-client curl
@@ -26,7 +29,7 @@ spec:
           mountPath: /runner
         - name: kubeconfig
           mountPath: /root/.kube
-          subPath: kubeconfig          
+          subPath: kubeconfig
       restartPolicy: OnFailure
       volumes:
       - name: ssh-key
@@ -37,4 +40,4 @@ spec:
           name: runner-scripts
       - name: kubeconfig
         configMap:
-          name: kubeconfig          
+          name: kubeconfig
