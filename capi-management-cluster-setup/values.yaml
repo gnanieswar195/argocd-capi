@@ -3,7 +3,7 @@ serverSetup:
   ssh:
     user: "ubuntu"
     host: "10.230.23.37"
-    keySecretName: "ssh-key-secret"
+    keyFile: ""
 
 kubeconfig:
-  path: "/runner/kubeconfig"
+  path: ""
