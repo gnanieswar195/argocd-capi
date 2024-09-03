@@ -4,4 +4,5 @@ image:
 
 controlPlaneIP: "10.230.23.37"
 setupCompletePath: "/etc/rancher/rke2/setup-complete"
-kubeconfigPath: "../kubeconfig"
+
+kubeconfigPath: "/etc/rancher/rke2"
