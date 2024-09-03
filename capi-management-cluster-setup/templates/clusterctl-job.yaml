@@ -15,12 +15,10 @@ spec:
           value: /root/.kube/kubeconfig
         args:
           - |
-            apk add --no-cache openssh-client curl
+            apk add --no-cache curl
             mkdir -p /root/.ssh
-            cp /home/ubuntu/gnani-140.pem /root/.ssh/id_rsa/
-            chmod 600 /root/.ssh/id_rsa
-            ssh -o StrictHostKeyChecking=no {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/install-clusterctl.sh
-            ssh -o StrictHostKeyChecking=no {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/init-cluster.sh
+            ssh -i {{ .Values.serverSetup.ssh.keyFile }} -o StrictHostKeyChecking=no {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/install-clusterctl.sh
+            ssh -i {{ .Values.serverSetup.ssh.keyFile }} -o StrictHostKeyChecking=no {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/init-cluster.sh
         volumeMounts:
         - name: runner-scripts
           mountPath: /runner
