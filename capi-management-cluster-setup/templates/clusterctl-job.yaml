@@ -19,4 +19,11 @@ spec:
             mkdir -p /root/.ssh
             ssh -o StrictHostKeyChecking=no {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/install-clusterctl.sh
             ssh -o StrictHostKeyChecking=no {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/init-cluster.sh
+        volumeMounts:
+        - name: runner-scripts
+          mountPath: /runner
       restartPolicy: OnFailure
+      volumes:
+      - name: runner-scripts
+        configMap:
+          name: runner-scripts
