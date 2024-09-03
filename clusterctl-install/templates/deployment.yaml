@@ -30,7 +30,7 @@ spec:
             clusterctl version
 
             echo "Setting up the management cluster..."
-            export KUBECONFIG=/etc/kubeconfig/kubeconfig && \
+            export KUBECONFIG=/kubeconfig/kubeconfig && \
             export CLUSTER_TOPOLOGY=true && \
             clusterctl init --infrastructure {{ .Values.clusterctl.infrastructureProvider }}
 
@@ -39,7 +39,7 @@ spec:
             sleep infinity
         volumeMounts:
         - name: kubeconfig-volume
-          mountPath: /etc/kubeconfig
+          mountPath: /kubeconfig/kubeconfig
           subPath: kubeconfig
       restartPolicy: Always
       volumes:
