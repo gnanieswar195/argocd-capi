@@ -16,6 +16,7 @@ spec:
             mkdir -p /root/.ssh
             cp /mnt/ssh-key/id_rsa /root/.ssh/id_rsa
             chmod 600 /root/.ssh/id_rsa
+            cp ./kubeconfig/kubeconfig /tmp/kubeconfig
             ssh -o StrictHostKeyChecking=no {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/install-clusterctl.sh
             ssh -o StrictHostKeyChecking=no {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/init-cluster.sh
         volumeMounts:
