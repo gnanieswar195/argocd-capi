@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: clusterctl-setup
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: ssh
+        image: alpine:latest
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          apk add --no-cache openssh-client curl
+          cp /etc/ssh/config /root/.ssh/config
+          chmod 600 /root/.ssh/config
+          ssh -o StrictHostKeyChecking=no -i {{ .Values.serverSetup.ssh.keyFile }} {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/install-clusterctl.sh
+          ssh -o StrictHostKeyChecking=no -i {{ .Values.serverSetup.ssh.keyFile }} {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/init-cluster.sh
+        volumeMounts:
+        - name: ssh-config
+          mountPath: /runner
+      restartPolicy: OnFailure
+      volumes:
+      - name: ssh-config
+        configMap:
+          name: ssh-config

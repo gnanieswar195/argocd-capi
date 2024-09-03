@@ -1,8 +1,9 @@
-image:
-  repository: alpine
-  tag: "3.18"
+serverSetup:
+  clusterctlUrl: "https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.6.2/clusterctl-linux-amd64"
+  ssh:
+    user: "ubuntu"
+    host: "10.230.23.37"
+    keyFile: "../private-key/privatekey.pem"
 
-controlPlaneIP: "10.230.23.37"
-setupCompletePath: "/etc/rancher/rke2/setup-complete"
-
-kubeconfigPath: "/etc/rancher/rke2"
+kubeconfig:
+  path: "../kubeconfig/kubeconfig"
