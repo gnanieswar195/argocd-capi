@@ -1,9 +1,16 @@
-apiVersion: batch/v1
-kind: Job
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: capi-management-cluster-setup
 spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: capi-management-cluster-setup
   template:
+    metadata:
+      labels:
+        app: capi-management-cluster-setup
     spec:
       containers:
       - name: capi-management-cluster-setup
@@ -44,10 +51,14 @@ spec:
 
             # Initialize the management cluster
             /usr/local/bin/clusterctl init --infrastructure openstack
+
+            # Exit the container to prevent it from running indefinitely
+            exit 0
         volumeMounts:
         - name: kubeconfig
           mountPath: /etc/rancher/rke2
-        restartPolicy: OnFailure
+        restartPolicy: Never
+      restartPolicy: OnFailure
       volumes:
       - name: kubeconfig
         hostPath:
