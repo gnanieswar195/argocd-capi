@@ -6,4 +6,4 @@ serverSetup:
     keySecretName: "ssh-key-secret"
 
 kubeconfig:
-  path: "/tmp/kubeconfig"
+  path: "/runner/kubeconfig"
