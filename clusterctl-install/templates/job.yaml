@@ -1,10 +1,17 @@
-apiVersion: batch/v1
-kind: Job
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: clusterctl-install-job
+  name: clusterctl-installer-deployment
   namespace: default
 spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clusterctl-installer
   template:
+    metadata:
+      labels:
+        app: clusterctl-installer
     spec:
       containers:
       - name: clusterctl-installer
@@ -12,9 +19,13 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
           - |
-            apt-get update && apt-get install -y curl nginx sudo && \
-            curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/{{ .Values.clusterctl.version }}/clusterctl-linux-amd64 -o clusterctl && \
-            sudo install -o root -g root -m 0755 clusterctl /usr/local/bin/clusterctl && \
-            clusterctl version 
-      restartPolicy: Never
-  backoffLimit: 1
+            if ! command -v clusterctl &> /dev/null; then
+              apt-get update && apt-get install -y curl sudo && \
+              curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/{{ .Values.clusterctl.version }}/clusterctl-linux-amd64 -o clusterctl && \
+              sudo install -o root -g root -m 0755 clusterctl /usr/local/bin/clusterctl && \
+              echo "clusterctl installed successfully."
+            fi
+            echo "Clusterctl version:"
+            clusterctl version
+            sleep infinity
+      restartPolicy: Always
