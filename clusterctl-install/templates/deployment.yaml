@@ -20,12 +20,21 @@ spec:
         args:
           - |
             if ! command -v clusterctl &> /dev/null; then
-              apt-get update && apt-get install -y curl git sudo && \
+              apt-get update && apt-get install -y curl sudo && \
               curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/{{ .Values.clusterctl.version }}/clusterctl-linux-amd64 -o clusterctl && \
               sudo install -o root -g root -m 0755 clusterctl /usr/local/bin/clusterctl && \
               echo "clusterctl installed successfully."
             fi
+
             echo "Clusterctl version:"
             clusterctl version
+
+            echo "Setting up the management cluster..."
+            export KUBECONFIG={{ .Values.clusterctl.kubeconfigPath }} && \
+            export CLUSTER_TOPOLOGY=true && \
+            clusterctl init --infrastructure {{ .Values.clusterctl.infrastructureProvider }}
+
+            echo "Management cluster initialized successfully."
+
             sleep infinity
       restartPolicy: Always
