@@ -15,7 +15,7 @@ spec:
           value: /root/.kube/kubeconfig
         args:
           - |
-            apk add --no-cache curl
+            apk add --no-cache openssh-client curl
             mkdir -p /root/.ssh
             ssh -i {{ .Values.serverSetup.ssh.keyFile }} -o StrictHostKeyChecking=no {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/install-clusterctl.sh
             ssh -i {{ .Values.serverSetup.ssh.keyFile }} -o StrictHostKeyChecking=no {{ .Values.serverSetup.ssh.user }}@{{ .Values.serverSetup.ssh.host }} 'bash -s' < /runner/init-cluster.sh
