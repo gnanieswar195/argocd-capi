@@ -1,7 +1,9 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: management-cluster-installer-deployment
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -36,14 +38,23 @@ spec:
             echo "Clusterctl version:"
             clusterctl version
 
-            # Check if the required components are already installed
-            if kubectl get ns capi-system &> /dev/null && \
-               kubectl get ns capo-system &> /dev/null && \
-               kubectl get ns cert-manager &> /dev/null && \
-               kubectl get deployment -n capi-system capi-controller-manager &> /dev/null && \
-               kubectl get deployment -n capo-system capo-controller-manager &> /dev/null && \
-               kubectl get deployment -n cert-manager cert-manager &> /dev/null; then
-              echo "Management cluster components already installed, skipping initialization."
+            # Function to check if all necessary pods are in the 'Running' state
+            check_pods_running() {
+              namespaces=("capi-system" "capo-system" "cert-manager" "capi-kubeadm-bootstrap-system" "capi-kubeadm-control-plane-system")
+              for ns in "${namespaces[@]}"; do
+                pods=$(kubectl get pods -n $ns -o jsonpath='{.items[*].status.phase}')
+                for pod_status in $pods; do
+                  if [ "$pod_status" != "Running" ]; then
+                    return 1
+                  fi
+                done
+              done
+              return 0
+            }
+
+            # Check if the required components are already installed and running
+            if check_pods_running; then
+              echo "Management cluster components already installed and running, skipping initialization."
             else
               echo "Setting up the management cluster..."
               export KUBECONFIG=/kubeconfig/kubeconfig && \
