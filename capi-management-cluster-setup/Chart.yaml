@@ -1,4 +1,0 @@
-apiVersion: v2
-name: my-clusterctl-chart
-description: A Helm chart to install clusterctl and initialize a management cluster
-version: 0.1.0

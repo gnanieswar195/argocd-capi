@@ -1,9 +1,0 @@
-serverSetup:
-  clusterctlUrl: "https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.6.2/clusterctl-linux-amd64"
-  ssh:
-    user: "ubuntu"
-    host: "10.230.23.37"
-    keyFile: "/home/ubuntu/gnani-140.pem"
-
-kubeconfig:
-  path: "/etc/rancher/rke2/rke2.yaml"
