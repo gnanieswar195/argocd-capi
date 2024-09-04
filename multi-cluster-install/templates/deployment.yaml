@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: management-cluster-installer-deployment
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -28,7 +29,7 @@ spec:
             echo "kubectl installed successfully."
 
             # Fetch the latest clusterctl version if "latest" is specified
-            if [ "{{ .Values.clusterctl.version }}" == "latest" ]; then
+            if [ "{{ .Values.clusterctl.version }}" = "latest" ]; then
               latest_version=$(curl -s https://api.github.com/repos/kubernetes-sigs/cluster-api/releases/latest | grep tag_name | cut -d '"' -f 4) && \
               curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/${latest_version}/clusterctl-linux-amd64 -o clusterctl && \
               chmod +x clusterctl && \
@@ -46,8 +47,8 @@ spec:
 
             # Function to check if all necessary pods are in the 'Running' state
             check_pods_running() {
-              namespaces=("capi-system" "capo-system" "cert-manager" "capi-kubeadm-bootstrap-system" "capi-kubeadm-control-plane-system")
-              for ns in "${namespaces[@]}"; do
+              namespaces="capi-system capo-system cert-manager capi-kubeadm-bootstrap-system capi-kubeadm-control-plane-system"
+              for ns in $namespaces; do
                 pods=$(kubectl get pods -n $ns -o jsonpath='{.items[*].status.phase}')
                 for pod_status in $pods; do
                   if [ "$pod_status" != "Running" ]; then
