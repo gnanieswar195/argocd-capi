@@ -1,4 +1,3 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,22 +14,30 @@ spec:
     spec:
       containers:
       - name: management-cluster-installer
-        image: ubuntu:22.04
-        command: ["/bin/bash", "-c"]
+        image: alpine:latest
+        command: ["/bin/sh", "-c"]
         args:
           - |
             # Install necessary tools
-            apt-get update && apt-get install -y curl sudo && \
+            apk update && apk add --no-cache curl sudo
+
+            # Install kubectl
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+            chmod +x kubectl && \
+            mv kubectl /usr/local/bin/ && \
+            echo "kubectl installed successfully."
 
             # Fetch the latest clusterctl version if "latest" is specified
             if [ "{{ .Values.clusterctl.version }}" == "latest" ]; then
               latest_version=$(curl -s https://api.github.com/repos/kubernetes-sigs/cluster-api/releases/latest | grep tag_name | cut -d '"' -f 4) && \
               curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/${latest_version}/clusterctl-linux-amd64 -o clusterctl && \
-              sudo install -o root -g root -m 0755 clusterctl /usr/local/bin/clusterctl && \
+              chmod +x clusterctl && \
+              mv clusterctl /usr/local/bin/ && \
               echo "clusterctl installed successfully."
             else
               curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/{{ .Values.clusterctl.version }}/clusterctl-linux-amd64 -o clusterctl && \
-              sudo install -o root -g root -m 0755 clusterctl /usr/local/bin/clusterctl && \
+              chmod +x clusterctl && \
+              mv clusterctl /usr/local/bin/ && \
               echo "clusterctl version {{ .Values.clusterctl.version }} installed successfully."
             fi
 
