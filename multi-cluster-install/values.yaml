@@ -1,0 +1,5 @@
+clusterctl:
+  version: "latest"
+  infrastructureProvider: "openstack"
+
+kubeconfigSecret: "kubeconfig-secret"

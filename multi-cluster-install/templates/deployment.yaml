@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: management-cluster-installer-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: management-cluster-installer
+  template:
+    metadata:
+      labels:
+        app: management-cluster-installer
+    spec:
+      containers:
+      - name: management-cluster-installer
+        image: ubuntu:22.04
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            # Install necessary tools
+            apt-get update && apt-get install -y curl sudo && \
+
+            # Fetch the latest clusterctl version if "latest" is specified
+            if [ "{{ .Values.clusterctl.version }}" == "latest" ]; then
+              latest_version=$(curl -s https://api.github.com/repos/kubernetes-sigs/cluster-api/releases/latest | grep tag_name | cut -d '"' -f 4) && \
+              curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/${latest_version}/clusterctl-linux-amd64 -o clusterctl && \
+              sudo install -o root -g root -m 0755 clusterctl /usr/local/bin/clusterctl && \
+              echo "clusterctl installed successfully."
+            else
+              curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/{{ .Values.clusterctl.version }}/clusterctl-linux-amd64 -o clusterctl && \
+              sudo install -o root -g root -m 0755 clusterctl /usr/local/bin/clusterctl && \
+              echo "clusterctl version {{ .Values.clusterctl.version }} installed successfully."
+            fi
+
+            echo "Clusterctl version:"
+            clusterctl version
+
+            # Check if the required components are already installed
+            if kubectl get ns capi-system &> /dev/null && \
+               kubectl get ns capo-system &> /dev/null && \
+               kubectl get ns cert-manager &> /dev/null && \
+               kubectl get deployment -n capi-system capi-controller-manager &> /dev/null && \
+               kubectl get deployment -n capo-system capo-controller-manager &> /dev/null && \
+               kubectl get deployment -n cert-manager cert-manager &> /dev/null; then
+              echo "Management cluster components already installed, skipping initialization."
+            else
+              echo "Setting up the management cluster..."
+              export KUBECONFIG=/kubeconfig/kubeconfig && \
+              export CLUSTER_TOPOLOGY=true && \
+              clusterctl init --infrastructure {{ .Values.clusterctl.infrastructureProvider }}
+              echo "Management cluster initialized successfully."
+            fi
+
+            sleep infinity
+        volumeMounts:
+        - name: kubeconfig-volume
+          mountPath: /kubeconfig/kubeconfig
+          subPath: kubeconfig
+      restartPolicy: Always
+      volumes:
+      - name: kubeconfig-volume
+        secret:
+          secretName: {{ .Values.kubeconfigSecret }}
